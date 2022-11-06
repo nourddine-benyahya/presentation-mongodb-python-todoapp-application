@@ -1,2 +1,0 @@
-npm install react-chartjs-2 chart.js
-npm install @material-ui/core
