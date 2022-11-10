@@ -3,12 +3,18 @@
 
 from pathlib import Path
 
-# from tkinter import *
 
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 import tkinter
 import tkinter.messagebox
 
+from pymongo import MongoClient
+client = MongoClient('localhost', 27017)
+
+
+mydb=client["database_for_python"]
+
+movies=mydb.movies_project
 
 
 OUTPUT_PATH = Path(__file__).parent
@@ -86,88 +92,86 @@ button_image_1 = PhotoImage(
 
 
 
-#creating function
 
 
 
-
-#Create empty list
-tasks = []
-
-#List for testing
-tasks =["music","coding","create invoice", "tax return"]
 
 
 
 def update_listbox():
-    # clear the current listbox
+
     clear_listbox()
-    # Populate listbox by appending each task to list
-    for task in tasks:
-        lb_tasks.insert("end", task)
+
+    
+    for task in movies.find():
+        lb_tasks.insert("end", task['name'])
+    
 
 
 def clear_listbox():
     lb_tasks.delete(0, "end")
 
-def add_task(event=None): # "event=None" so that enter key can add task without clicking the button
-    #get user input(prompt)
+def add_task(event=None):
     task = entry_1.get()
-    # Ensure user has enetered a task
+
     if task !="":
-      tasks.append(task)
+      movies.insert_one({'name':task})
       update_listbox()
     else:
-        tkinter.messagebox.showwarning("Note!", "Please enter a task")
-    # Clear the textbox to avoid adding the same task twice accidentally
+        tkinter.messagebox.showwarning("Note!", "Please enter your movies")
+
     entry_1.delete(0, "end")
 
-window.bind('<Return>', add_task)# bind return key to add_task so that enter key can add task without clicking the button
+window.bind('<Return>', add_task)
 
 
 
 
 
 def num_tasks():
-    num_tasks = len(tasks)
+    num_tasks = len(list(movies.find()))
     tkinter.messagebox.showinfo("INFORMATION","You have  {} Movies in List".format(num_tasks))
 def delete_task():
 
-    # Get the text of the currently selected item
+ 
     task = lb_tasks.get("active")
-    # Confirm task is in list
-    if task in tasks:
-        confirm_del = tkinter.messagebox.askyesno("Confirm Deletion", "Are you sure you want to delete task:   ** {} ** ?".format(task))
-        if confirm_del:# tkinter.messagebox.askyesno returns boolean
-          tasks.remove(task)
+
+
+    confirm_del = tkinter.messagebox.askyesno("Confirm Deletion", "Are you sure you want to delete task:   ** {} ** ?".format(task))
+    if confirm_del:
+        movies.delete_one({'name':task})
     update_listbox()
 
 
 
 def update_task():
 
-    # Get the text of the currently selected item
+
     oldtask = lb_tasks.get("active")
     newtask = entry_1.get()
     
-    # Confirm task is in list
-    confirm_del = tkinter.messagebox.askyesno("Confirm update", "Are you sure you want to update movie:   " +oldtask+ " to movie "+ newtask + " ?")
-    if confirm_del:# tkinter.messagebox.askyesno returns boolean
-        print("ok")
-    update_listbox()
 
 
+
+
+    
+    if newtask !="":
+        confirm_del = tkinter.messagebox.askyesno("Confirm update", "Are you sure you want to update movie:   " +oldtask+ " to movie "+ newtask + " ?")
+        if confirm_del:
+            movies.update_one({'name':oldtask},{"$set":{'name':newtask}})
+        update_listbox()
+    else:
+        tkinter.messagebox.showwarning("Note!", "Please enter your new movies")
 
 
 
 def delete_all():
-    # As list is being changed, it needs to be global.
-    global tasks
+
     confirm_del = tkinter.messagebox.askyesno("Delete All Confirmation", "Are you sure you want to delete all tasks?")
     if confirm_del:
-      # Clear the tasks list.
-      tasks = []
-      # Update listbox
+  
+      movies.delete_many({})
+
       update_listbox()
 
 def exit():
@@ -175,7 +179,7 @@ def exit():
 
 window.bind('<Return>', add_task)
 
-# Create title in window widget of GUI with white background
+
 
 
 
@@ -292,12 +296,15 @@ lb_tasks.place(
 )
 
 
-#Populate listbox at program start for future file io functionality
+
 def show_listbox():
-    global tasks
-    for task in tasks:
-        lb_tasks.insert("end", task)
-#Populate listbox at program start for future file io functionality
+    
+
+
+    for task in movies.find():
+        lb_tasks.insert("end", task['name'])
+        
+
 show_listbox()
 
 
