@@ -155,12 +155,25 @@ def login() :
     flag=True
     try:
         movies.find_one()
-
     except:
         flag=False
+   
+    
     
     if flag==True :
-        os.startfile('C:\\Users\\nourd\\OneDrive\\Desktop\\presentation-mongodb-python-todoapp-application-main\\python_project\\build\\gui.py')
+        
+        
+        try :
+            print(movies.find_one_and_update({"name":"dvdvdv"},{"$set":{"name":"dvgdvdgv"}}))
+            typecnx="admin"
+        except :
+            typecnx="user"
+        
+        
+        if typecnx=="admin":
+            os.startfile('C:\\Users\\nourd\\OneDrive\\Desktop\\presentation-mongodb-python-todoapp-application-main\\python_project\\build\\gui.py')
+        elif typecnx=="user" :
+            os.startfile('C:\\Users\\nourd\\OneDrive\\Desktop\\presentation-mongodb-python-todoapp-application-main\\python_project\\build\\gui1.py')
     else:
         tkinter.messagebox.showerror("ERROR!", "Please enter VALID email or password")
 
