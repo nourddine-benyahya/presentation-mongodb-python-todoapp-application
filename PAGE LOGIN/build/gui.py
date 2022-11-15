@@ -4,7 +4,9 @@
 
 
 from pathlib import Path
-
+import os
+import tkinter.messagebox
+from pymongo import MongoClient
 
 
 
@@ -14,7 +16,7 @@ from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
 
 
 OUTPUT_PATH = Path(__file__).parent
-ASSETS_PATH = OUTPUT_PATH / Path(r"C:\Users\nourd\OneDrive\Desktop\presontation mongodb&python\PAGE LOGIN\build\assets\frame0")
+ASSETS_PATH = OUTPUT_PATH / Path(r"C:\Users\nourd\OneDrive\Desktop\presentation-mongodb-python-todoapp-application-main\PAGE LOGIN\build\assets\frame0")
 
 
 def relative_to_assets(path: str) -> Path:
@@ -147,9 +149,22 @@ canvas.create_text(
 def login() :
     email= entry_1.get()
     password = entry_2.get()
-    print(email)
+    client = MongoClient('localhost', 27017,  username=email,password=password)
+    mydb=client["database_for_python"]
+    movies=mydb.movies_project
+    flag=True
+    try:
+        movies.find_one()
 
+    except:
+        flag=False
+    
+    if flag==True :
+        os.startfile('C:\\Users\\nourd\\OneDrive\\Desktop\\presentation-mongodb-python-todoapp-application-main\\python_project\\build\\gui.py')
+    else:
+        tkinter.messagebox.showerror("ERROR!", "Please enter VALID email or password")
 
+    
 
 
 

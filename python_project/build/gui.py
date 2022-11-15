@@ -9,7 +9,7 @@ import tkinter
 import tkinter.messagebox
 
 from pymongo import MongoClient
-client = MongoClient('localhost', 27017)
+client = MongoClient('localhost', 27017, username='prjAdmin',password='123456')
 
 
 mydb=client["database_for_python"]
@@ -18,7 +18,7 @@ movies=mydb.movies_project
 
 
 OUTPUT_PATH = Path(__file__).parent
-ASSETS_PATH = OUTPUT_PATH / Path(r"C:\Users\nourd\OneDrive\Desktop\python_project\build\assets\frame0")
+ASSETS_PATH = OUTPUT_PATH / Path(r"C:\Users\nourd\OneDrive\Desktop\presentation-mongodb-python-todoapp-application-main\python_project\build\assets\frame0")
 
 
 def relative_to_assets(path: str) -> Path:
@@ -113,14 +113,15 @@ def clear_listbox():
 
 def add_task(event=None):
     task = entry_1.get()
-
-    if task !="":
-      movies.insert_one({'name':task})
-      update_listbox()
-    else:
-        tkinter.messagebox.showwarning("Note!", "Please enter your movies")
-
-    entry_1.delete(0, "end")
+    try :
+        if task !="":
+            movies.insert_one({'name':task})
+            update_listbox()
+        else:
+            tkinter.messagebox.showwarning("Note!", "Please enter your movies")
+        entry_1.delete(0, "end")
+    except :
+        tkinter.messagebox.showerror("ERROR!", "YOU DON'T HAVE THAT PERMETION YOU SHOLD BE ADMIN")
 
 window.bind('<Return>', add_task)
 
@@ -139,7 +140,10 @@ def delete_task():
 
     confirm_del = tkinter.messagebox.askyesno("Confirm Deletion", "Are you sure you want to delete task:   ** {} ** ?".format(task))
     if confirm_del:
-        movies.delete_one({'name':task})
+        try :
+            movies.delete_one({'name':task})
+        except :
+            tkinter.messagebox.showerror("ERROR!", "YOU DON'T HAVE THAT PERMETION YOU SHOLD BE ADMIN")
     update_listbox()
 
 
@@ -154,25 +158,28 @@ def update_task():
 
 
 
-    
-    if newtask !="":
-        confirm_del = tkinter.messagebox.askyesno("Confirm update", "Are you sure you want to update movie:   " +oldtask+ " to movie "+ newtask + " ?")
-        if confirm_del:
-            movies.update_one({'name':oldtask},{"$set":{'name':newtask}})
-        update_listbox()
-    else:
-        tkinter.messagebox.showwarning("Note!", "Please enter your new movies")
-
+    try :
+        if newtask !="":
+            confirm_del = tkinter.messagebox.askyesno("Confirm update", "Are you sure you want to update movie:   " +oldtask+ " to movie "+ newtask + " ?")
+            if confirm_del:
+                movies.update_one({'name':oldtask},{"$set":{'name':newtask}})
+            update_listbox()
+        else:
+            tkinter.messagebox.showwarning("Note!", "Please enter your new movies")
+    except :
+            tkinter.messagebox.showerror("ERROR!", "YOU DON'T HAVE THAT PERMETION YOU SHOLD BE ADMIN")
 
 
 def delete_all():
 
     confirm_del = tkinter.messagebox.askyesno("Delete All Confirmation", "Are you sure you want to delete all tasks?")
-    if confirm_del:
-  
-      movies.delete_many({})
+    try :
+        if confirm_del:
+            movies.delete_many({})
+    except :
+        tkinter.messagebox.showerror("ERROR!", "YOU DON'T HAVE THAT PERMETION YOU SHOLD BE ADMIN")
 
-      update_listbox()
+    update_listbox()
 
 def exit():
     quit()
